@@ -1,0 +1,89 @@
+# Deploys this repo to the production nginx server on every push to main.
+#
+# INACTIVE until these four repository secrets exist
+# (Settings -> Secrets and variables -> Actions -> New repository secret):
+#
+#   DEPLOY_HOST      server IP or hostname       e.g. 142.93.254.82
+#   DEPLOY_USER      ssh user that can write to the web root
+#   DEPLOY_PATH      absolute path to the web root, no trailing slash
+#                    e.g. /var/www/snapshot.health
+#   DEPLOY_SSH_KEY   private half of a deploy keypair; put the public half in
+#                    that user's ~/.ssh/authorized_keys
+#
+# Until then the job runs, reports "skipped", and changes nothing.
+#
+# WARNING: rsync runs with --delete. DEPLOY_PATH must point at the site's web
+# root and nothing else — anything in that directory that is not in this repo
+# is removed. That is what clears out stale assets (old videos, etc).
+#
+# Deliberately triggered only by pushes to main, never by pull_request: this
+# repo is public, and PR-triggered jobs are a common way for secrets to leak.
+
+name: Deploy to production server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that deploy secrets are configured
+        id: check
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_NAME: ${{ secrets.DEPLOY_USER }}
+          TARGET: ${{ secrets.DEPLOY_PATH }}
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          missing=""
+          [ -z "$HOST" ]      && missing="$missing DEPLOY_HOST"
+          [ -z "$USER_NAME" ] && missing="$missing DEPLOY_USER"
+          [ -z "$TARGET" ]    && missing="$missing DEPLOY_PATH"
+          [ -z "$KEY" ]       && missing="$missing DEPLOY_SSH_KEY"
+          if [ -n "$missing" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Deploy skipped::Missing secret(s):$missing — see .github/workflows/deploy.yml for setup."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up SSH
+        if: steps.check.outputs.configured == 'true'
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload site
+        if: steps.check.outputs.configured == 'true'
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_NAME: ${{ secrets.DEPLOY_USER }}
+          TARGET: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          rsync -rlvz --delete \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.vercel/' \
+            --exclude '.gitignore' \
+            --exclude 'README.md' \
+            --exclude 'vercel.json' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            ./ "$USER_NAME@$HOST:$TARGET/"
+
+      - name: Clean up key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
