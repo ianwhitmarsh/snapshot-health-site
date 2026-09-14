@@ -383,7 +383,7 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
 .site-footer { background: #4A555B; padding: 58px 0 46px; }
 .site-footer .grid {
   width: min(1280px, calc(100% - 80px)); margin: 0 auto;
-  display: grid; grid-template-columns: 1fr auto auto; gap: 120px; align-items: center;
+  display: grid; grid-template-columns: 1fr auto auto auto; gap: 54px; align-items: center;
 }
 .site-footer .logo { width: 150px; }
 .site-footer .fl { text-align: right; }
@@ -397,6 +397,17 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
 .site-footer .legal { margin-top: 32px; font-size: 11.5px; color: var(--cream); }
 .site-footer .legal a { text-decoration: underline; margin-left: 26px; }
 .site-footer .copy { margin-top: 10px; font-size: 11px; color: var(--gray-light); }
+
+/* ---------- Security & Trust ---------- */
+/* Custom Snapshot Health mark, matching the approved footer reference. */
+.soc2-badge { display: block; width: 210px; max-width: 100%; color: var(--cream); }
+.soc2-badge-art { display: block; width: 100%; height: auto; }
+.soc2-badge-note { display: block; margin-top: 10px; font-size: 11px; text-align: center; }
+.soc2-badge:hover .soc2-badge-note { color: var(--yellow); }
+.soc2-badge:focus-visible { outline: 2px solid var(--yellow); outline-offset: 8px; }
+.legal-page .body .notice h2 { margin: 0 0 12px; }
+.security-contact-label { margin-top: 22px; }
+.security-contact { width: 252px; height: auto; margin-top: 8px; }
 
 /* ============================================================
    SUB PAGES (What we test / About)
@@ -693,11 +704,11 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
   .site-footer .logo { width: 120px; }
   .site-footer .fl { text-align: left; }
   .site-footer .fl a + a { margin-top: 15px; }
+  .site-footer .soc2-badge { width: 210px; }
   .site-footer .right { text-align: left; }
   .site-footer .socials { justify-content: flex-start; }
   .site-footer .legal { margin-top: 24px; }
   .site-footer .legal a { margin-left: 0; margin-right: 26px; }
-
   /* subpages */
   .subhero h1 { padding: 0 18px; }
   .about-block { min-height: 0; }
@@ -782,6 +793,8 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
 }
 
 @media (max-width: 1020px) {
+  /* Footer tablet layout is scoped separately to preserve the mobile column. */
+
   /* hero */
   .hero h1 { font-size: 64px; line-height: 62px; }
   .hero .sub { font-size: 26px; line-height: 36px; max-width: 640px; }
@@ -932,4 +945,8 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
   .subhero { height: 360px; }
   .subhero video.bg, .subhero img.bg { object-position: 55% 50%; }
   .subhero h1 { margin-top: 26px; font-size: 34px; line-height: 44px; }
+}
+
+@media (min-width: 761px) and (max-width: 1020px) {
+  .site-footer .grid { grid-template-columns: 1fr auto; gap: 42px; }
 }
