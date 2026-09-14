@@ -311,4 +311,50 @@
       if (cardEl) cardEl.classList.add('sent');
     });
   }
+
+  /* ---------- Lead magnet: gate the PDF behind the form ---------- */
+  var lead = document.getElementById('leadForm');
+  if (lead) {
+    var LEAD_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/0GMF7Dzolx7LCNT4lfT3/webhook-trigger/f8532551-de8a-478b-9fd2-306ea55e950d';
+    var val = function (id) {
+      var el = document.getElementById(id);
+      return el ? String(el.value || '').trim() : '';
+    };
+    lead.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var payload = {
+        name: val('l-name'),
+        email: val('l-email'),
+        company: val('l-org'),
+        phone: val('l-phone'),
+        lead_source: 'Lead Magnet - Corporate Wellness Crash Course',
+        lead_magnet: 'Corporate Wellness That Actually Works',
+        page: window.location.href,
+        submitted_at: new Date().toISOString()
+      };
+
+      try {
+        fetch(LEAD_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(function () {});
+      } catch (err) {}
+
+      try { if (window.fbq) window.fbq('track', 'Lead', { content_name: payload.lead_magnet }); } catch (err) {}
+      try { if (window.lintrk) window.lintrk('track', {}); } catch (err) {}
+
+      var card = lead.closest('.form-card');
+      if (card) card.classList.add('sent');
+
+      var dl = document.getElementById('leadDownload');
+      if (dl) {
+        setTimeout(function () {
+          try { dl.click(); } catch (err) { window.location.href = dl.getAttribute('href'); }
+        }, 350);
+      }
+    });
+  }
 })();

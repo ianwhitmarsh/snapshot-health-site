@@ -950,3 +950,122 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
 @media (min-width: 761px) and (max-width: 1020px) {
   .site-footer .grid { grid-template-columns: 1fr auto; gap: 42px; }
 }
+
+/* ============================================================
+   LEAD MAGNET LANDING PAGE (guide.html)
+   ============================================================ */
+.lead { position: relative; min-height: 100vh; overflow: hidden; display: flex; align-items: center; }
+.lead img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lead .tint { position: absolute; inset: 0; background: linear-gradient(100deg, rgba(3,5,2,.82) 0%, rgba(8,20,34,.68) 50%, rgba(0,18,105,.30) 100%); }
+.lead-inner {
+  position: relative; z-index: 2;
+  width: min(1300px, calc(100% - 80px)); margin: 0 auto;
+  padding: 190px 0 110px;
+  display: grid; grid-template-columns: 1fr 520px; gap: 74px; align-items: center;
+}
+
+.lead-copy .eyebrow {
+  font-family: var(--sans); font-weight: 800; font-size: 12.5px;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--yellow);
+}
+.lead-copy h1 {
+  margin-top: 20px;
+  font-family: var(--serif); font-weight: 300;
+  font-size: 62px; line-height: 68px; letter-spacing: .02em; color: var(--cream);
+  text-shadow: 0 2px 28px rgba(0,10,25,.45);
+}
+.lead-copy h1 em { font-family: var(--accent-italic); font-style: italic; font-weight: 400; color: var(--yellow); }
+.lead-copy .dek {
+  margin-top: 26px; max-width: 590px;
+  font-family: var(--sans); font-weight: 300; font-size: 19px; line-height: 31px; color: #fff;
+}
+.lead-points { margin-top: 34px; max-width: 590px; display: grid; gap: 16px; }
+.lead-points li {
+  position: relative; padding-left: 32px;
+  font-family: var(--sans); font-weight: 300; font-size: 16.5px; line-height: 26px; color: var(--cream);
+}
+.lead-points li b { font-weight: 700; color: #fff; }
+.lead-points li::before {
+  content: ""; position: absolute; left: 2px; top: 8px;
+  width: 9px; height: 9px;
+  border-top: 2.5px solid var(--yellow); border-right: 2.5px solid var(--yellow);
+  transform: rotate(45deg);
+}
+.lead-meta {
+  margin-top: 38px; padding-top: 22px; border-top: 1px solid rgba(239,239,223,.18);
+  font-family: var(--sans); font-weight: 700; font-size: 11.5px;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--gray-light);
+}
+
+/* Card */
+.form-card.lead-card {
+  margin: 0; width: 100%; min-height: 0;
+  padding: 54px 46px 48px;
+  position: relative;
+}
+.form-card.lead-card .guide-cover {
+  position: absolute; top: -46px; right: -34px;
+  width: 148px; height: auto; border-radius: 3px;
+  box-shadow: 0 22px 54px rgba(0,8,20,.6);
+  transform: rotate(4deg);
+  transition: transform .3s ease;
+}
+.form-card.lead-card:hover .guide-cover { transform: rotate(2deg) translateY(-4px); }
+.form-card.lead-card h3 { font-size: 28px; max-width: 250px; }
+.form-card.lead-card form { margin-top: 30px; max-width: none; }
+.form-card.lead-card .field { margin-top: 26px; }
+.form-card.lead-card .send-row { margin-top: 38px; flex-wrap: wrap; gap: 16px 20px; }
+.form-card.lead-card .send-row .note { font-size: 15px; color: var(--gray-light); }
+
+/* Success state */
+.form-card.lead-card .thanks { margin-top: 0; font-size: inherit; line-height: inherit; }
+.form-card.lead-card .thanks h4 {
+  font-family: var(--serif); font-weight: 300; font-size: 34px; line-height: 44px;
+  color: var(--cream); letter-spacing: .02em;
+}
+.form-card.lead-card .thanks p {
+  margin-top: 16px;
+  font-family: var(--sans); font-weight: 300; font-size: 17px; line-height: 28px; color: var(--cream);
+}
+.form-card.lead-card .thanks .btn { margin-top: 30px; font-size: 14px; padding: 15px 28px; }
+.form-card.lead-card .thanks .thanks-foot {
+  margin-top: 34px; padding-top: 22px; border-top: 1px solid rgba(239,239,223,.18);
+  font-size: 15px; line-height: 24px; color: var(--gray-light);
+}
+.form-card.lead-card .thanks .thanks-foot a { color: var(--yellow); font-weight: 700; }
+.form-card.lead-card.sent h3 { display: none; }
+.form-card.lead-card.sent .guide-cover { top: -40px; }
+
+/* Tablet */
+@media (max-width: 1180px) {
+  .lead-inner { grid-template-columns: 1fr 460px; gap: 48px; }
+  .lead-copy h1 { font-size: 52px; line-height: 58px; }
+}
+@media (max-width: 1020px) {
+  .lead { align-items: flex-start; }
+  .lead-inner {
+    grid-template-columns: 1fr; gap: 52px;
+    padding: 150px 0 90px;
+    width: min(660px, calc(100% - 44px));
+  }
+  .lead-copy h1 { font-size: 48px; line-height: 55px; }
+  .lead-copy .dek, .lead-points { max-width: none; }
+  .form-card.lead-card .guide-cover { width: 124px; top: -40px; right: -12px; }
+}
+
+/* Phone */
+@media (max-width: 760px) {
+  .lead-inner { padding: 130px 0 76px; gap: 58px; }
+  .lead-copy .eyebrow { font-size: 11px; letter-spacing: .18em; }
+  .lead-copy h1 { margin-top: 16px; font-size: 34px; line-height: 42px; }
+  .lead-copy .dek { margin-top: 20px; font-size: 16.5px; line-height: 27px; }
+  .lead-points { margin-top: 28px; gap: 14px; }
+  .lead-points li { font-size: 15.5px; line-height: 24px; padding-left: 28px; }
+  .lead-meta { margin-top: 30px; font-size: 10.5px; letter-spacing: .13em; }
+  .form-card.lead-card { padding: 46px 24px 40px; }
+  .form-card.lead-card h3 { font-size: 24px; max-width: 200px; }
+  .form-card.lead-card .guide-cover { width: 96px; top: -32px; right: -6px; }
+  .form-card.lead-card .send-row { flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 32px; }
+  .form-card.lead-card .thanks h4 { font-size: 27px; line-height: 36px; }
+  .form-card.lead-card .thanks p { font-size: 16px; }
+}
