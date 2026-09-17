@@ -1069,3 +1069,13 @@ body.scrolled .nav { box-shadow: 0 12px 34px rgba(0,0,0,.35); background: #2F363
   .form-card.lead-card .thanks h4 { font-size: 27px; line-height: 36px; }
   .form-card.lead-card .thanks p { font-size: 16px; }
 }
+
+/* AICPA artwork beside the existing Snapshot SOC 2 shield. */
+.footer-assurance { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; }
+.footer-assurance .soc2-badge { flex: 0 0 210px; }
+.aicpa-soc-badge { display: block; flex: 0 0 100px; }
+.aicpa-soc-badge img { display: block; width: 164px; max-width: none; height: auto; margin: -32px; }
+.aicpa-soc-badge:focus-visible { outline: 2px solid var(--yellow); outline-offset: 6px; }
+@media (min-width: 761px) and (max-width: 1280px) {
+  .site-footer .grid { grid-template-columns: 1fr auto; gap: 42px; }
+}
