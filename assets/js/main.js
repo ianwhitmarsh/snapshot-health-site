@@ -18,21 +18,50 @@
 
   /* ---------- Adaptive lazy video loading ----------
      - Nothing downloads until it's needed (posters show instantly)
-     - Slow connections / data-saver / phones get lighter encodes
+     - Managed backgrounds use original resolution; other videos remain adaptive
      - Background loops pause when far off screen                    */
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   var slowNet = !!(conn && (conn.saveData || /(^|-)2g|3g/.test(conn.effectiveType || '')));
   var useSmall = slowNet || window.innerWidth < 768;
 
+  // Only these background loops use the new playback policy.
+  // Claire and user-controlled testimonials retain their existing behavior.
+  function managedBackground(v) {
+    return /^(hero-back|nurse-talk|b2b-bottom|about-hero|wwt-hero)$/.test(v.dataset.vid);
+  }
+  function backgroundVisible(v) {
+    var r = v.getBoundingClientRect();
+    return !document.hidden && r.bottom > 0 && r.top < window.innerHeight &&
+      r.right > 0 && r.left < window.innerWidth && r.width > 0 && r.height > 0;
+  }
+  function syncBackground(v) {
+    if (!v.dataset.attached) return;
+    if (backgroundVisible(v)) {
+      if (v.paused) v.play().catch(function () {});
+    } else {
+      v.pause();
+    }
+  }
+
   function attachVideo(v) {
     if (v.dataset.attached) return;
     v.dataset.attached = '1';
-    var base = 'assets/video/' + v.dataset.vid + (useSmall ? '-small' : '');
+    var smallerSource = useSmall && !managedBackground(v);
+    var base = 'assets/video/' + v.dataset.vid + (smallerSource ? '-small' : '');
     var s = document.createElement('source');
     s.src = base + '.mp4';
     s.type = 'video/mp4';
     v.appendChild(s);
     v.preload = v.hasAttribute('data-hover') ? 'metadata' : 'auto';
+    if (managedBackground(v)) {
+      v.addEventListener('canplay', function () { syncBackground(v); });
+      v.addEventListener('playing', function () {
+        if (!backgroundVisible(v)) v.pause();
+      });
+      v.load();
+      syncBackground(v);
+      return;
+    }
     v.load();
     if (!v.hasAttribute('data-hover')) {
       var tryPlay = function () { v.play().catch(function () {}); };
@@ -42,6 +71,8 @@
   }
 
   var lazyVids = Array.prototype.slice.call(document.querySelectorAll('video[data-vid]'));
+  var backgrounds = lazyVids.filter(managedBackground);
+  var legacyVids = lazyVids.filter(function (v) { return !managedBackground(v); });
   lazyVids.forEach(function (v) { if (v.hasAttribute('data-eager')) attachVideo(v); });
 
   if ('IntersectionObserver' in window) {
@@ -50,7 +81,7 @@
         if (e.isIntersecting) { attachVideo(e.target); vio.unobserve(e.target); }
       });
     }, { rootMargin: '900px 0px 900px 0px' });
-    lazyVids.forEach(function (v) { if (!v.hasAttribute('data-eager')) vio.observe(v); });
+    legacyVids.forEach(function (v) { if (!v.hasAttribute('data-eager')) vio.observe(v); });
 
     /* pause/resume looping backgrounds by visibility */
     var pio = new IntersectionObserver(function (entries) {
@@ -61,10 +92,37 @@
         else { v.pause(); }
       });
     }, { rootMargin: '250px 0px 250px 0px' });
-    lazyVids.forEach(function (v) { if (!v.hasAttribute('data-hover')) pio.observe(v); });
+    legacyVids.forEach(function (v) { if (!v.hasAttribute('data-hover')) pio.observe(v); });
+
+    var backgroundLoader = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { attachVideo(e.target); backgroundLoader.unobserve(e.target); }
+      });
+    }, { rootMargin: '300px 0px' });
+    var backgroundPlayer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { syncBackground(e.target); });
+    }, { threshold: 0 });
+    backgrounds.forEach(function (v) {
+      backgroundLoader.observe(v);
+      backgroundPlayer.observe(v);
+    });
   } else {
     lazyVids.forEach(attachVideo);
+    var backgroundTick = false;
+    function checkBackgrounds() {
+      if (backgroundTick) return;
+      backgroundTick = true;
+      requestAnimationFrame(function () {
+        backgroundTick = false;
+        backgrounds.forEach(syncBackground);
+      });
+    }
+    window.addEventListener('scroll', checkBackgrounds, { passive: true });
+    window.addEventListener('resize', checkBackgrounds);
   }
+  document.addEventListener('visibilitychange', function () { backgrounds.forEach(syncBackground); });
+  window.addEventListener('pagehide', function () { backgrounds.forEach(function (v) { v.pause(); }); });
+  window.addEventListener('pageshow', function () { backgrounds.forEach(syncBackground); });
 
   /* ---------- Fixed header state ---------- */
   var scrolledState = false;
